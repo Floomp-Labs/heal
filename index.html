@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heal - Kawaii Strategy Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #fff6f9;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+    
+    .title {
+      font-size: 6rem;
+      color: #ff69b4;
+      text-shadow: 3px 3px 0px #ffcce0, 6px 6px 0px #ffd1e5, 9px 9px 0px #ffe6f1;
+      font-weight: bold;
+      z-index: 10;
+      position: absolute;
+      top: -20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      letter-spacing: 0.1em;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+      100% { transform: translateY(0px); }
+    }
+    
+    .heart-bg {
+      position: absolute;
+      fill: pink;
+      opacity: 0.6;
+      animation: float-heart 10s linear infinite;
+    }
+    
+    @keyframes float-heart {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+      100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+    }
+    
+    .game-container {
+      background-color: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(255, 105, 180, 0.3);
+      width: 80%;
+      max-width: 800px;
+      margin-top: 100px;
+      z-index: 5;
+      border: 3px solid #ff85a2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .game-header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    
+    .game-title {
+      color: #ff69b4;
+      font-size: 2.5rem;
+      margin-bottom: 5px;
+    }
+    
+    .game-subtitle {
+      color: #ff85a2;
+      font-size: 1.2rem;
+      margin-top: 0;
+    }
+    
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .patient {
+      width: 80px;
+      height: 80px;
+      background-color: #ffe6f1;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid #ffb6c1;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .patient:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+    }
+    
+    .patient-emoji {
+      font-size: 30px;
+      margin-bottom: 2px;
+    }
+    
+    .health-bar {
+      width: 60px;
+      height: 8px;
+      background-color: #ffcce0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .health-level {
+      height: 100%;
+      background-color: #ff69b4;
+      transition: width 0.5s ease;
+    }
+    
+    .game-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .healers-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .healer {
+      width: 80px;
+      height: 80px;
+      background-color: #e6f9ff;
+      border-radius: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid #85c1ff;
+      transition: all 0.3s ease;
+    }
+    
+    .healer:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(133, 193, 255, 0.4);
+    }
+    
+    .healer.selected {
+      background-color: #c9ecff;
+      border: 2px solid #3498db;
+      transform: scale(1.05);
+    }
+    
+    .healer-emoji {
+      font-size: 30px;
+      margin-bottom: 5px;
+    }
+    
+    .healer-name {
+      font-size: 12px;
+      text-align: center;
+      color: #3498db;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-top: 10px;
+    }
+    
+    .stat {
+      text-align: center;
+      color: #ff69b4;
+    }
+    
+    .wave-info {
+      font-size: 1.5rem;
+      color: #ff69b4;
+      margin-bottom: 15px;
+    }
+    
+    .cute-button {
+      background-color: #ff85a2;
+      border: none;
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-size: 1.2rem;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(255, 105, 180, 0.3);
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    
+    .cute-button:hover {
+      background-color: #ff69b4;
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(255, 105, 180, 0.4);
+    }
+    
+    .cute-button:disabled {
+      background-color: #ffcce0;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .health-text {
+      font-size: 10px;
+      margin-top: 2px;
+      color: #ff85a2;
+    }
+    
+    .game-over {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 246, 249, 0.9);
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    
+    .game-over-text {
+      font-size: 4rem;
+      color: #ff69b4;
+      text-shadow: 3px 3px 0px #ffcce0;
+      margin-bottom: 30px;
+    }
+    
+    .game-result {
+      font-size: 2rem;
+      color: #ff85a2;
+      margin-bottom: 30px;
+    }
+    
+    .effects {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .healing-effect {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background-image: radial-gradient(circle, rgba(133, 255, 189, 0.8) 0%, rgba(133, 255, 189, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: pulse 1s ease-out;
+      z-index: 15;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="title">HEAL</h1>
+  
+  <div class="game-container">
+    <div class="game-header">
+      <h2 class="game-title">Kawaii Healing Center</h2>
+      <p class="game-subtitle">Heal your patients with strategy and care!</p>
+    </div>
+    
+    <div class="wave-info">Wave: <span id="current-wave">1</span></div>
+    
+    <div class="game-board" id="patient-board"></div>
+    
+    <div class="game-controls">
+      <div class="healers-container" id="healers">
+        <div class="healer" data-healer="nurse" onclick="selectHealer('nurse')">
+          <div class="healer-emoji">👩‍⚕️</div>
+          <div class="healer-name">Nurse Joy</div>
+        </div>
+        <div class="healer" data-healer="doctor" onclick="selectHealer('doctor')">
+          <div class="healer-emoji">👨‍⚕️</div>
+          <div class="healer-name">Dr. Fluffy</div>
+        </div>
+        <div class="healer" data-healer="witch" onclick="selectHealer('witch')">
+          <div class="healer-emoji">🧙‍♀️</div>
+          <div class="healer-name">Witch Honey</div>
+        </div>
+      </div>
+      
+      <button class="cute-button" id="next-wave-btn" onclick="startNextWave()" disabled>Next Wave</button>
+    </div>
+    
+    <div class="stats">
+      <div class="stat">
+        <p>Healed: <span id="healed-count">0</span></p>
+      </div>
+      <div class="stat">
+        <p>Lost: <span id="lost-count">0</span></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="game-over" id="game-over">
+    <div class="game-over-text">Game Over</div>
+    <div class="game-result" id="game-result">You healed 0 patients!</div>
+    <button class="cute-button" onclick="resetGame()">Play Again</button>
+  </div>
+  
+  <div class="effects" id="effects"></div>
+  
+  <script>
+    // Game variables
+    let selectedHealer = null;
+    let patients = [];
+    let currentWave = 1;
+    let maxWaves = 5;
+    let healedCount = 0;
+    let lostCount = 0;
+    let waveInProgress = false;
+    
+    // Healer types and their healing powers
+    const healers = {
+      nurse: { power: 20, emoji: "👩‍⚕️", name: "Nurse Joy" },
+      doctor: { power: 30, emoji: "👨‍⚕️", name: "Dr. Fluffy" },
+      witch: { power: 40, emoji: "🧙‍♀️", name: "Witch Honey" }
+    };
+    
+    // Patient emojis for different ailments
+    const patientEmojis = ["😷", "🤒", "🤕", "🤢", "🤧", "😵", "🥴"];
+    
+    // Initialize the game
+    function initGame() {
+      createBackgroundHearts();
+      generateWave();
+    }
+    
+    // Create animated background hearts
+    function createBackgroundHearts() {
+      function createHeart() {
+        const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        heart.setAttribute('class', 'heart-bg');
+        heart.setAttribute('viewBox', '0 0 24 24');
+        heart.setAttribute('width', Math.random() * 30 + 10);
+        heart.setAttribute('height', Math.random() * 30 + 10);
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z');
+        
+        const colors = ['#ffb6c1', '#ff69b4', '#ff1493', '#ff85a2', '#ffc0cb'];
+        path.setAttribute('fill', colors[Math.floor(Math.random() * colors.length)]);
+        
+        heart.appendChild(path);
+        document.body.appendChild(heart);
+        
+        const startX = Math.random() * window.innerWidth;
+        heart.style.left = `${startX}px`;
+        heart.style.bottom = '-50px';
+        
+        const duration = Math.random() * 5 + 5;
+        heart.style.animationDuration = `${duration}s`;
+        
+        setTimeout(() => {
+          heart.remove();
+        }, duration * 1000);
+      }
+      
+      // Create hearts at regular intervals
+      setInterval(createHeart, 500);
+      
+      // Create initial hearts
+      for (let i = 0; i < 15; i++) {
+        setTimeout(createHeart, Math.random() * 2000);
+      }
+    }
+    
+    // Generate a wave of patients
+    function generateWave() {
+      waveInProgress = true;
+      const patientBoard = document.getElementById('patient-board');
+      patientBoard.innerHTML = '';
+      patients = [];
+      
+      // Number of patients increases with wave
+      const patientCount = 5 + (currentWave - 1) * 2;
+      
+      for (let i = 0; i < patientCount; i++) {
+        // Health decreases more rapidly in later waves
+        const maxHealth = 100;
+        const health = maxHealth;
+        const decayRate = 0.2 + (currentWave * 0.1);
+        
+        const patient = {
+          id: i,
+          health,
+          maxHealth,
+          decayRate,
+          emoji: patientEmojis[Math.floor(Math.random() * patientEmojis.length)],
+          healed: false,
+          lost: false
+        };
+        
+        patients.push(patient);
+        
+        // Create patient element
+        const patientElement = document.createElement('div');
+        patientElement.className = 'patient';
+        patientElement.dataset.id = i;
+        patientElement.onclick = () => healPatient(i);
+        
+        const emojiElement = document.createElement('div');
+        emojiElement.className = 'patient-emoji';
+        emojiElement.textContent = patient.emoji;
+        
+        const healthBar = document.createElement('div');
+        healthBar.className = 'health-bar';
+        
+        const healthLevel = document.createElement('div');
+        healthLevel.className = 'health-level';
+        healthLevel.style.width = '100%';
+        
+        const healthText = document.createElement('div');
+        healthText.className = 'health-text';
+        healthText.textContent = '100%';
+        
+        healthBar.appendChild(healthLevel);
+        patientElement.appendChild(emojiElement);
+        patientElement.appendChild(healthBar);
+        patientElement.appendChild(healthText);
+        
+        patientBoard.appendChild(patientElement);
+      }
+      
+      // Start the health decay
+      startHealthDecay();
+    }
+    
+    // Start health decay for all patients
+    function startHealthDecay() {
+      const decayInterval = setInterval(() => {
+        let allPatientsProcessed = true;
+        
+        patients.forEach(patient => {
+          if (!patient.healed && !patient.lost) {
+            patient.health -= patient.decayRate;
+            updatePatientDisplay(patient);
+            
+            if (patient.health <= 0) {
+              patient.lost = true;
+              lostCount++;
+              document.getElementById('lost-count').textContent = lostCount;
+              
+              const patientElement = document.querySelector(`.patient[data-id="${patient.id}"]`);
+              patientElement.style.backgroundColor = '#ffcce0';
+              patientElement.style.opacity = '0.7';
+              patientElement.style.cursor = 'not-allowed';
+            }
+            
+            allPatientsProcessed = false;
+          }
+        });
+        
+        // Check if wave is complete
+        if (allPatientsProcessed || patients.every(p => p.healed || p.lost)) {
+          clearInterval(decayInterval);
+          waveComplete();
+        }
+        
+        // Check for game over condition
+        if (lostCount >= 10) {
+          gameOver(false);
+          clearInterval(decayInterval);
+        }
+        
+      }, 100);
+    }
+    
+    // Update the visual display of a patient
+    function updatePatientDisplay(patient) {
+      const patientElement = document.querySelector(`.patient[data-id="${patient.id}"]`);
+      if (!patientElement) return;
+      
+      const healthPercentage = Math.max(0, Math.min(100, (patient.health / patient.maxHealth) * 100));
+      const healthLevel = patientElement.querySelector('.health-level');
+      const healthText = patientElement.querySelector('.health-text');
+      
+      healthLevel.style.width = `${healthPercentage}%`;
+      healthText.textContent = `${Math.round(healthPercentage)}%`;
+      
+      // Change color based on health
+      if (healthPercentage < 25) {
+        healthLevel.style.backgroundColor = '#ff4d4d';
+      } else if (healthPercentage < 50) {
+        healthLevel.style.backgroundColor = '#ffa64d';
+      } else {
+        healthLevel.style.backgroundColor = '#ff69b4';
+      }
+    }
+    
+    // Select a healer
+    function selectHealer(healerType) {
+      selectedHealer = healerType;
+      
+      // Update UI to show selected healer
+      document.querySelectorAll('.healer').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      document.querySelector(`.healer[data-healer="${healerType}"]`).classList.add('selected');
+    }
+    
+    // Heal a patient
+    function healPatient(patientId) {
+      if (!selectedHealer || !waveInProgress) return;
+      
+      const patient = patients.find(p => p.id === patientId);
+      if (!patient || patient.healed || patient.lost) return;
+      
+      // Apply healing
+      const healAmount = healers[selectedHealer].power;
+      patient.health = Math.min(patient.maxHealth, patient.health + healAmount);
+      
+      // Create healing effect
+      createHealingEffect(patientId);
+      
+      // Check if patient is fully healed
+      if (patient.health >= patient.maxHealth) {
+        patient.healed = true;
+        healedCount++;
+        document.getElementById('healed-count').textContent = healedCount;
+        
+        const patientElement = document.querySelector(`.patient[data-id="${patient.id}"]`);
+        patientElement.style.backgroundColor = '#c1ffdd';
+        patientElement.style.borderColor = '#85ffc1';
+      }
+      
+      updatePatientDisplay(patient);
+      
+      // Check if wave is complete
+      if (patients.every(p => p.healed || p.lost)) {
+        waveComplete();
+      }
+    }
+    
+    // Create healing visual effect
+    function createHealingEffect(patientId) {
+      const patientElement = document.querySelector(`.patient[data-id="${patientId}"]`);
+      const rect = patientElement.getBoundingClientRect();
+      
+      const effect = document.createElement('div');
+      effect.className = 'healing-effect';
+      effect.style.left = `${rect.left + rect.width/2 - 20}px`;
+      effect.style.top = `${rect.top + rect.height/2 - 20}px`;
+      
+      document.getElementById('effects').appendChild(effect);
+      
+      setTimeout(() => {
+        effect.remove();
+      }, 1000);
+    }
+    
+    // Wave complete logic
+    function waveComplete() {
+      waveInProgress = false;
+      
+      // Enable next wave button
+      const nextWaveBtn = document.getElementById('next-wave-btn');
+      nextWaveBtn.disabled = false;
+      
+      // Check if all waves completed
+      if (currentWave >= maxWaves) {
+        gameOver(true);
+      }
+    }
+    
+    // Start the next wave
+    function startNextWave() {
+      currentWave++;
+      document.getElementById('current-wave').textContent = currentWave;
+      
+      const nextWaveBtn = document.getElementById('next-wave-btn');
+      nextWaveBtn.disabled = true;
+      
+      generateWave();
+    }
+    
+    // Game over
+    function gameOver(completed) {
+      const gameOverScreen = document.getElementById('game-over');
+      const gameResult = document.getElementById('game-result');
+      
+      if (completed) {
+        gameResult.textContent = `You completed all waves and healed ${healedCount} patients!`;
+      } else {
+        gameResult.textContent = `You lost too many patients. You healed ${healedCount} patients.`;
+      }
+      
+      gameOverScreen.style.display = 'flex';
+    }
+    
+    // Reset the game
+    function resetGame() {
+      currentWave = 1;
+      document.getElementById('current-wave').textContent = currentWave;
+      
+      healedCount = 0;
+      document.getElementById('healed-count').textContent = healedCount;
+      
+      lostCount = 0;
+      document.getElementById('lost-count').textContent = lostCount;
+      
+      const gameOverScreen = document.getElementById('game-over');
+      gameOverScreen.style.display = 'none';
+      
+      const nextWaveBtn = document.getElementById('next-wave-btn');
+      nextWaveBtn.disabled = true;
+      
+      selectedHealer = null;
+      document.querySelectorAll('.healer').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      generateWave();
+    }
+    
+    // Initialize the game when the page loads
+    window.onload = initGame;
+  </script>
+</body>
+</html>
